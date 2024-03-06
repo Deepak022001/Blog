@@ -4,7 +4,7 @@ import { blogRouter } from './blogRouter';
 const app = new Hono<{
   Bindings: {
     DATABASE_URL: string;
-    JWT_SECRET: string;
+    JWT_URL: string;
   };
 }>();
 

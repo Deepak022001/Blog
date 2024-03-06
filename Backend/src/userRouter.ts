@@ -6,7 +6,7 @@ import { sign } from 'hono/jwt';
 export const userRoute = new Hono<{
   Bindings: {
     DATABASE_URL: string;
-    JWT_SECRET: string;
+    JWT_URL: string;
   };
 }>();
 userRoute.post('/signup', async (c) => {
@@ -26,7 +26,7 @@ userRoute.post('/signup', async (c) => {
       {
         id: user.id,
       },
-      c.env.JWT_SECRET
+      c.env.JWT_URL
     );
     return c.text(jwt);
   } catch (e) {
@@ -45,10 +45,14 @@ userRoute.post('/signin', async (c) => {
     const body = await c.req.json();
     const user = await prisma.user.findUnique({
       where: {
-        email: body.email,
+        id: body.id,
       },
     });
-    const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
+    if (!user) {
+      c.status(411);
+      return c.text('Invalid');
+    }
+    const jwt = await sign({ id: user.id }, c.env.JWT_URL);
     return c.text(jwt);
   } catch (e) {
     console.log(e);
